@@ -164,9 +164,24 @@ const serviceClient = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process
 ## 🚀 Deployment Strategy
 
 ### Environment Configuration
-- **Development**: Local Supabase + Expo dev server
-- **Staging**: Supabase project + Expo builds
-- **Production**: App Store deployment + production Supabase
+- **Development**: Cloud Supabase + Expo dev server (localhost:8081)
+- **Production**: Vercel deployment + production Supabase
+
+### Vercel Deployment Commands
+```bash
+# Install Vercel CLI (if not already installed)
+npm i -g vercel
+
+# Build and deploy in one command
+npm run deploy
+
+# Or build and deploy separately
+npm run build    # Creates ./dist folder
+vercel --prod    # Deploys to production
+
+# Quick deploy from git (auto-builds)
+vercel --prod
+```
 
 ### Performance Considerations
 - Image optimization and caching
