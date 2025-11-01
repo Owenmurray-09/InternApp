@@ -23,47 +23,20 @@ export default function LandingScreen() {
     }
   };
 
-  // If user is already authenticated, show them where they can go
+  // If user is already authenticated, redirect to their dashboard
   if (status === 'authenticated') {
     const userRole = user?.user_metadata?.role;
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>
-          You're logged in as: {user?.email}
-        </Text>
-        <Text style={styles.roleText}>
-          Role: {userRole || 'No role set'}
-        </Text>
+    if (userRole === 'student') {
+      router.replace('/student');
+      return null;
+    } else if (userRole === 'employer') {
+      router.replace('/employer');
+      return null;
+    }
 
-        <View style={styles.buttonContainer}>
-          {userRole === 'student' && (
-            <TouchableOpacity
-              style={[styles.roleButton, styles.studentButton]}
-              onPress={() => router.push('/student')}
-            >
-              <Text style={styles.buttonText}>Go to Student Dashboard</Text>
-            </TouchableOpacity>
-          )}
-
-          {userRole === 'employer' && (
-            <TouchableOpacity
-              style={[styles.roleButton, styles.employerButton]}
-              onPress={() => router.push('/employer')}
-            >
-              <Text style={styles.buttonText}>Go to Employer Dashboard</Text>
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-            <Text style={styles.signOutText}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
-
-        <StatusBar style="auto" />
-      </View>
-    );
+    // If no role is set, show landing page to let them choose
+    // This shouldn't happen with our current auth flow, but just in case
   }
 
   // Landing page for unauthenticated users
@@ -121,12 +94,6 @@ const styles = StyleSheet.create({
     marginBottom: 48,
     lineHeight: 24,
   },
-  roleText: {
-    fontSize: 16,
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
   buttonContainer: {
     width: '100%',
     maxWidth: 400,
@@ -162,18 +129,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
-  },
-  signOutButton: {
-    backgroundColor: '#F44336',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  signOutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

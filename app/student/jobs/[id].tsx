@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Text, Image, Alert, Dimensions, TouchableOpacity, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Image, Dimensions, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '@/config/theme';
@@ -69,7 +69,7 @@ export default function JobDetailScreen() {
 
   const handleApply = async () => {
     if (hasApplied) {
-      Alert.alert('Already Applied', 'You have already applied for this position.');
+      console.log('ℹ️ User already applied for this position');
       return;
     }
 
@@ -87,13 +87,16 @@ export default function JobDetailScreen() {
         applicationEmail.trim(),
         applicationPhone.trim()
       );
-      Alert.alert('Success', 'Your application has been submitted!');
+      console.log('✅ Application submitted successfully! Redirecting to student dashboard...');
       setShowApplicationForm(false);
       setApplicationNote('');
       setApplicationEmail('');
       setApplicationPhone('');
+
+      // Navigate back to student dashboard
+      router.replace('/student');
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      console.error('❌ Application submission failed:', error.message);
     }
   };
 
@@ -110,6 +113,15 @@ export default function JobDetailScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        </View>
+
         {renderImageCarousel()}
 
         <View style={styles.content}>
@@ -234,7 +246,7 @@ export default function JobDetailScreen() {
                 onPress={() => {
                   const phone = job?.companies?.phone || '';
                   if (!phone) {
-                    Alert.alert('No WhatsApp', 'WhatsApp contact not available for this employer.');
+                    console.log('ℹ️ WhatsApp contact not available for this employer');
                     return;
                   }
                   const message = `Hi! I'm interested in the ${job?.title} position.`;
@@ -292,6 +304,19 @@ const styles = StyleSheet.create({
   },
   activeIndicator: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  header: {
+    padding: theme.spacing.lg,
+    paddingBottom: 0,
+  },
+  backButton: {
+    padding: theme.spacing.sm,
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    fontSize: theme.fontSize.lg,
+    color: theme.colors.primary,
+    fontFamily: theme.fontFamily.bodyMedium,
   },
   content: {
     padding: theme.spacing.lg,

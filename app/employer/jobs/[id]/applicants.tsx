@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Text, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, Text, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { theme } from '@/config/theme';
 import { Card } from '@/components/ui/Card';
@@ -23,6 +23,7 @@ interface Application {
 
 export default function ApplicantsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -165,6 +166,12 @@ export default function ApplicantsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Applications</Text>
         <Text style={styles.subtitle}>{applications.length} applications received</Text>
       </View>
@@ -188,6 +195,16 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: theme.spacing.lg,
+  },
+  backButton: {
+    padding: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    fontSize: theme.fontSize.lg,
+    color: theme.colors.primary,
+    fontFamily: theme.fontFamily.bodyMedium,
   },
   title: {
     fontSize: theme.fontSize.xxxl,

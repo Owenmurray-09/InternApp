@@ -27,7 +27,7 @@ interface UseApplicationsReturn {
 }
 
 interface UseApplyReturn {
-  apply: (jobId: string, note?: string) => Promise<void>;
+  apply: (jobId: string, note?: string, contactEmail?: string, contactPhone?: string) => Promise<void>;
   loading: boolean;
   error: string | null;
 }
@@ -162,6 +162,31 @@ export function useApply(): UseApplyReturn {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No authenticated user');
 
+      // First, ensure user has a profile (required for foreign key constraint)
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (!existingProfile) {
+        console.log('Creating student profile for application submission');
+        // Create profile if it doesn't exist
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            role: 'student',
+            name: user.email?.split('@')[0] || 'Student',
+            interests: [],
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          throw new Error('Failed to create user profile');
+        }
+      }
+
       // Check if already applied
       const { data: existingApplication } = await supabase
         .from('applications')
@@ -174,45 +199,34 @@ export function useApply(): UseApplyReturn {
         throw new Error('You have already applied for this position');
       }
 
-      // Try with new fields first, fallback to old schema if they don't exist
-      let applicationData: any = {
+      // Submit application (without contact fields since they don't exist in database)
+      const applicationData = {
         job_id: jobId,
         student_user_id: user.id,
         note: note || null,
         status: 'submitted',
       };
 
-      // Add contact fields if provided (for new schema)
-      if (contactEmail || contactPhone) {
-        applicationData.contact_email = contactEmail || null;
-        applicationData.contact_phone = contactPhone || null;
-      }
+      console.log('Submitting application with data:', applicationData);
 
       const { error } = await supabase
         .from('applications')
         .insert(applicationData);
 
       if (error) {
-        // If error is due to unknown columns, try without contact fields
-        if (error.message?.includes('column') && (contactEmail || contactPhone)) {
-          const fallbackData = {
-            job_id: jobId,
-            student_user_id: user.id,
-            note: note || null,
-            status: 'submitted',
-          };
+        console.error('Application submission error:', error);
+        throw error;
+      }
 
-          const { error: fallbackError } = await supabase
-            .from('applications')
-            .insert(fallbackData);
+      console.log('Application submitted successfully');
 
-          if (fallbackError) throw fallbackError;
-        } else {
-          throw error;
-        }
+      // Log contact info separately since database doesn't store it
+      if (contactEmail || contactPhone) {
+        console.log('Contact info provided (not stored in DB):', { contactEmail, contactPhone });
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to apply for job';
+      console.error('Final application error:', errorMessage);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
