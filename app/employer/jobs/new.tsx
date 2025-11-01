@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, Alert, Switch } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -169,27 +169,21 @@ export default function NewJobScreen() {
           successMessage += '\n\nYour job is now live and visible to students!';
         }
 
-        console.log('🎉 Success! Showing alert to user');
+        console.log('🎉 Success! Job posted successfully, navigating to employer dashboard...');
 
-        Alert.alert('Success', successMessage, [
-          {
-            text: 'OK', onPress: () => {
-              console.log('👤 User clicked OK, navigating to employer dashboard...');
-              router.replace('/employer');
-            }
-          }
-        ]);
+        // Navigate immediately to employer dashboard
+        router.replace('/employer');
 
       } catch (createError: any) {
         console.log('❌ Job creation failed:', createError);
-        Alert.alert('Error', createError.message || 'Failed to create job');
+        console.error('Error details:', createError.message || 'Failed to create job');
         return;
       }
 
     } catch (error: any) {
       console.log('❌ UNEXPECTED ERROR in handleSubmit:', error);
       console.log('Error message:', error.message);
-      Alert.alert('Error', error.message || 'An unexpected error occurred');
+      console.error('Unexpected error details:', error.message || 'An unexpected error occurred');
     }
     console.log('=== JOB POSTING SUBMIT END ===');
   };
