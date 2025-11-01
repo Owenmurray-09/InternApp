@@ -199,12 +199,14 @@ export function useApply(): UseApplyReturn {
         throw new Error('You have already applied for this position');
       }
 
-      // Submit application (without contact fields since they don't exist in database)
+      // Submit application with contact fields
       const applicationData = {
         job_id: jobId,
         student_user_id: user.id,
         note: note || null,
         status: 'submitted',
+        contact_email: contactEmail || null,
+        contact_phone: contactPhone || null,
       };
 
       console.log('Submitting application with data:', applicationData);
@@ -219,10 +221,8 @@ export function useApply(): UseApplyReturn {
       }
 
       console.log('Application submitted successfully');
-
-      // Log contact info separately since database doesn't store it
       if (contactEmail || contactPhone) {
-        console.log('Contact info provided (not stored in DB):', { contactEmail, contactPhone });
+        console.log('Contact info stored in database:', { contactEmail, contactPhone });
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to apply for job';
