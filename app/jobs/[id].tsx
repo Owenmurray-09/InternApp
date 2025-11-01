@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Tag } from '@/components/ui/Tag';
 import { Input } from '@/components/ui/Input';
 import { useJob } from '@/lib/hooks/useJobs';
-import { useApply, useCheckApplication } from '@/lib/hooks/useApplications';
+import { useApply, useApplicationStatus } from '@/lib/hooks/useApplications';
 import { useAuthContext } from '@/lib/auth/AuthProvider';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -25,7 +25,7 @@ export default function JobDetailScreen() {
 
   const { job, loading } = useJob(id as string);
   const { apply, loading: applying } = useApply();
-  const { hasApplied, loading: checkingApplication } = useCheckApplication(id as string);
+  const { status: applicationStatus, loading: checkingApplication } = useApplicationStatus(id as string);
   const { user } = useAuthContext();
 
   const goToPrevious = () => {
@@ -99,7 +99,7 @@ export default function JobDetailScreen() {
   };
 
   const handleApply = async () => {
-    if (hasApplied) {
+    if (applicationStatus) {
       console.log('ℹ️ User already applied for this position');
       return;
     }
@@ -241,13 +241,23 @@ export default function JobDetailScreen() {
               </View>
             ) : (
               <Button
-                title={hasApplied
-                  ? "Application Submitted"
-                  : (job.is_paid ? "Apply Now" : "Apply as an Intern")
+                title={
+                  applicationStatus === 'accepted'
+                    ? "Application Accepted"
+                    : applicationStatus === 'rejected'
+                    ? "Application Declined"
+                    : applicationStatus === 'submitted'
+                    ? "Application Submitted"
+                    : (job.is_paid ? "Apply Now" : "Apply as an Intern")
                 }
                 onPress={handleApply}
-                style={[styles.applyButton, hasApplied && styles.appliedButton]}
-                disabled={hasApplied || checkingApplication}
+                style={[
+                  styles.applyButton,
+                  applicationStatus === 'accepted' && styles.acceptedButton,
+                  applicationStatus === 'rejected' && styles.rejectedButton,
+                  applicationStatus === 'submitted' && styles.appliedButton
+                ]}
+                disabled={applicationStatus !== null || checkingApplication}
               />
             )}
           </Card>
@@ -447,7 +457,15 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
   },
   appliedButton: {
+    backgroundColor: theme.colors.secondary,
+    opacity: 0.7,
+  },
+  acceptedButton: {
     backgroundColor: theme.colors.success,
+    opacity: 0.9,
+  },
+  rejectedButton: {
+    backgroundColor: theme.colors.error,
     opacity: 0.7,
   },
   contactCard: {

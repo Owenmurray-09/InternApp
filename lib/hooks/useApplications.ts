@@ -150,6 +150,64 @@ export function useCheckApplication(jobId: string): UseCheckApplicationReturn {
   };
 }
 
+interface UseApplicationStatusReturn {
+  status: 'submitted' | 'accepted' | 'rejected' | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export function useApplicationStatus(jobId: string): UseApplicationStatusReturn {
+  const [status, setStatus] = useState<'submitted' | 'accepted' | 'rejected' | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkApplicationStatus = async () => {
+      if (!jobId) {
+        setStatus(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setStatus(null);
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('applications')
+          .select('status')
+          .eq('job_id', jobId)
+          .eq('student_user_id', user.id)
+          .limit(1);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          setStatus(data[0].status as 'submitted' | 'accepted' | 'rejected');
+        } else {
+          setStatus(null);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to check application status');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkApplicationStatus();
+  }, [jobId]);
+
+  return {
+    status,
+    loading,
+    error,
+  };
+}
+
 export function useApply(): UseApplyReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
