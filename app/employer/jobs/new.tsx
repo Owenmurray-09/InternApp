@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, Switch, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, ScrollView, Text, Switch, TouchableOpacity, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -30,6 +30,9 @@ export default function NewJobScreen() {
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loadingCompany, setLoadingCompany] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Refs for focus management
+  const descriptionRef = useRef<TextInput>(null);
 
   const { createJob, loading: createLoading } = useCreateJob();
   const { uploadImages, loading: uploadLoading, progress } = useUploadJobImages();
@@ -140,6 +143,12 @@ export default function NewJobScreen() {
     }
 
     setErrors(newErrors);
+
+    // Focus on first error field
+    if (newErrors.description) {
+      setTimeout(() => descriptionRef.current?.focus(), 100);
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -266,6 +275,7 @@ export default function NewJobScreen() {
 
           <View>
             <Input
+              ref={descriptionRef}
               label="Job Description *"
               value={description}
               onChangeText={(text) => {
