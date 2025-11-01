@@ -183,7 +183,7 @@ export default function JobDetailScreen() {
                   label="Phone Number (Optional)"
                   value={applicationPhone}
                   onChangeText={setApplicationPhone}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder=""
                   keyboardType="phone-pad"
                 />
 

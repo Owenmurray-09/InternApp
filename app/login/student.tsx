@@ -115,7 +115,7 @@ export default function StudentLoginScreen() {
             Looking to hire students?
           </Text>
           <TouchableOpacity onPress={() => router.push('/login/employer')}>
-            <Text style={styles.switchRoleLink}>Go to Employer Portal</Text>
+            <Text style={styles.switchRoleLink}>Go to Employer Sign-In</Text>
           </TouchableOpacity>
         </View>
       </View>

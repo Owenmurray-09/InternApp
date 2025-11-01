@@ -302,14 +302,14 @@ export default function ProfileScreen() {
               label="Location"
               value={editForm.location}
               onChangeText={(text) => setEditForm(prev => ({ ...prev, location: text }))}
-              placeholder="City, State"
+              placeholder="County, Province"
             />
 
             <Input
               label="Phone"
               value={editForm.phone}
               onChangeText={(text) => setEditForm(prev => ({ ...prev, phone: text }))}
-              placeholder="Your phone number"
+              placeholder=""
               keyboardType="phone-pad"
             />
 

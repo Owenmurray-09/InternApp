@@ -66,8 +66,9 @@ export const theme = {
     bold: '700',
   },
   fontFamily: {
-    // Titles and headings - Poppins Bold
+    // Titles and headings - Poppins
     title: 'Poppins_700Bold',
+    titleBold: 'Poppins_700Bold',
     titleMedium: 'Poppins_600SemiBold',
     titleRegular: 'Poppins_500Medium',
 

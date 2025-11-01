@@ -185,7 +185,7 @@ export default function ProfileScreen() {
                   label="Phone (Optional)"
                   value={editForm.phone}
                   onChangeText={(text) => setEditForm({ ...editForm, phone: text })}
-                  placeholder="Your phone number"
+                  placeholder=""
                   keyboardType="phone-pad"
                 />
 

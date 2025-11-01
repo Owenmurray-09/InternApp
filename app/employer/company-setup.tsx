@@ -217,7 +217,7 @@ export default function CompanySetupScreen() {
             label="Phone Number"
             value={formData.phone}
             onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
-            placeholder="+1 (555) 123-4567"
+            placeholder=""
             keyboardType="phone-pad"
           />
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, Switch } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Alert, Switch, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Tag } from '@/components/ui/Tag';
-import { useCreateJob } from '@/lib/hooks/useJobs';
+import { useCreateJob, useUploadJobImages } from '@/lib/hooks/useJobs';
+import * as ImagePicker from 'expo-image-picker';
 
 const AVAILABLE_TAGS = [
   'cash register', 'customer service', 'heavy lifting', 'front desk',
@@ -25,11 +26,13 @@ export default function NewJobScreen() {
   const [isPaid, setIsPaid] = useState(false);
   const [stipendAmount, setStipendAmount] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loadingCompany, setLoadingCompany] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { createJob, loading: createLoading } = useCreateJob();
+  const { uploadImages, loading: uploadLoading, progress } = useUploadJobImages();
 
   useEffect(() => {
     loadCompany();
@@ -88,6 +91,29 @@ export default function NewJobScreen() {
     if (errors.tags) {
       setErrors(prev => ({ ...prev, tags: '' }));
     }
+  };
+
+  const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Camera roll permissions are required to select images');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+      aspect: [16, 9],
+    });
+
+    if (!result.canceled) {
+      setSelectedImages(prev => [...prev, ...result.assets].slice(0, 5)); // Max 5 images
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -150,40 +176,59 @@ export default function NewJobScreen() {
       console.log('📝 Job data to submit:', jobData);
       console.log('🚀 Calling createJob...');
 
+      let job;
       try {
-        const job = await createJob(jobData);
+        job = await createJob(jobData);
         console.log('✅ Job created successfully:', job);
-
-        // Show success message
-        const notificationResult = (job as any).notificationResult;
-        let successMessage = 'Job posted successfully!';
-
-        if (notificationResult?.success && notificationResult?.matchedStudents !== undefined) {
-          const matchedCount = notificationResult.matchedStudents;
-          if (matchedCount > 0) {
-            successMessage += `\n\nWe notified ${matchedCount} matched student${matchedCount === 1 ? '' : 's'}!`;
-          } else {
-            successMessage += '\n\nYour job is live! Students will be notified as their interests match.';
-          }
-        } else {
-          successMessage += '\n\nYour job is now live and visible to students!';
-        }
-
-        console.log('🎉 Success! Job posted successfully, navigating to employer dashboard...');
-
-        // Navigate immediately to employer dashboard
-        router.replace('/employer');
-
       } catch (createError: any) {
         console.log('❌ Job creation failed:', createError);
-        console.error('Error details:', createError.message || 'Failed to create job');
+        Alert.alert('Error', createError.message || 'Failed to create job');
         return;
       }
+
+      // Upload images if any selected
+      if (selectedImages.length > 0) {
+        console.log('📸 Uploading images...');
+        try {
+          const imageFiles = await Promise.all(
+            selectedImages.map(async (asset) => {
+              const response = await fetch(asset.uri);
+              const blob = await response.blob();
+              return new File([blob], asset.fileName || 'image.jpg', { type: 'image/jpeg' });
+            })
+          );
+
+          await uploadImages(job.id, imageFiles);
+          console.log('✅ Images uploaded successfully');
+        } catch (imageError) {
+          console.warn('⚠️ Image upload failed, but job was created:', imageError);
+        }
+      }
+
+      // Show success message
+      const notificationResult = (job as any).notificationResult;
+      let successMessage = 'Job posted successfully!';
+
+      if (notificationResult?.success && notificationResult?.matchedStudents !== undefined) {
+        const matchedCount = notificationResult.matchedStudents;
+        if (matchedCount > 0) {
+          successMessage += `\n\nWe notified ${matchedCount} matched student${matchedCount === 1 ? '' : 's'}!`;
+        } else {
+          successMessage += '\n\nYour job is live! Students will be notified as their interests match.';
+        }
+      } else {
+        successMessage += '\n\nYour job is now live and visible to students!';
+      }
+
+      console.log('🎉 Success! Job posted successfully, navigating to employer dashboard...');
+      Alert.alert('Success', successMessage, [
+        { text: 'OK', onPress: () => router.replace('/employer') }
+      ]);
 
     } catch (error: any) {
       console.log('❌ UNEXPECTED ERROR in handleSubmit:', error);
       console.log('Error message:', error.message);
-      console.error('Unexpected error details:', error.message || 'An unexpected error occurred');
+      Alert.alert('Error', error.message || 'An unexpected error occurred');
     }
     console.log('=== JOB POSTING SUBMIT END ===');
   };
@@ -238,8 +283,37 @@ export default function NewJobScreen() {
             label="Location"
             value={location}
             onChangeText={setLocation}
-            placeholder="City, State or Remote"
+            placeholder="County, Province or Remote"
           />
+
+          <View style={styles.imagesSection}>
+            <Text style={styles.sectionTitle}>Job Images (Optional)</Text>
+            <Text style={styles.sectionSubtitle}>Add up to 5 images to showcase the workplace or role</Text>
+
+            {selectedImages.length > 0 && (
+              <ScrollView horizontal style={styles.imagesPreview} showsHorizontalScrollIndicator={false}>
+                {selectedImages.map((image, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image source={{ uri: image.uri }} style={styles.previewImage} />
+                    <TouchableOpacity
+                      style={styles.removeImageButton}
+                      onPress={() => removeImage(index)}
+                    >
+                      <Text style={styles.removeImageText}>×</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            <Button
+              title={`Add Images (${selectedImages.length}/5)`}
+              onPress={pickImages}
+              variant="outline"
+              disabled={selectedImages.length >= 5}
+              style={styles.addImageButton}
+            />
+          </View>
 
           <View style={styles.paymentSection}>
             <Text style={styles.sectionTitle}>Payment</Text>
@@ -289,21 +363,21 @@ export default function NewJobScreen() {
 
           <View style={styles.actions}>
             <Button
-              title="Post Job"
+              title={uploadLoading ? `Uploading Images... ${Math.round(progress)}%` : "Post Job"}
               onPress={() => {
                 console.log('📋 Post Job button clicked');
-                console.log('Button state - createLoading:', createLoading);
+                console.log('Button state - createLoading:', createLoading, 'uploadLoading:', uploadLoading);
                 handleSubmit();
               }}
-              loading={createLoading}
-              disabled={createLoading}
+              loading={createLoading || uploadLoading}
+              disabled={createLoading || uploadLoading}
             />
 
             <Button
               title="Cancel"
               onPress={() => router.back()}
               variant="outline"
-              disabled={createLoading}
+              disabled={createLoading || uploadLoading}
             />
           </View>
         </Card>
@@ -393,5 +467,44 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.xs,
     fontStyle: 'italic',
+  },
+  imagesSection: {
+    marginVertical: theme.spacing.md,
+  },
+  sectionSubtitle: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.md,
+  },
+  imagesPreview: {
+    marginVertical: theme.spacing.md,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginRight: theme.spacing.md,
+  },
+  previewImage: {
+    width: 120,
+    height: 80,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#ff4444',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeImageText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  addImageButton: {
+    marginTop: theme.spacing.md,
   },
 });

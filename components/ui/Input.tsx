@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.medium,
+    fontFamily: theme.fontFamily.bodyMedium,
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
   },

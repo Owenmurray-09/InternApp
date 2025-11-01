@@ -70,7 +70,7 @@ export const JobFilters: React.FC<JobFiltersProps> = ({ onFiltersChange, availab
         <View style={styles.expandedFilters}>
           <Input
             label="Location"
-            placeholder="City, State"
+            placeholder="County, Province"
             value={location}
             onChangeText={setLocation}
           />
