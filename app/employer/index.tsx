@@ -134,13 +134,6 @@ export default function EmployerDashboard() {
     router.push('/employer/jobs/new');
   };
 
-  const handleProfile = () => {
-    router.push('/profile');
-  };
-
-  const handleCompanyProfile = () => {
-    router.push('/employer/company-setup');
-  };
 
   const handleLogout = async () => {
     try {
@@ -196,12 +189,6 @@ export default function EmployerDashboard() {
             <Text style={styles.subtitle}>{jobs.length} jobs posted</Text>
           </View>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.profileButton} onPress={handleProfile}>
-              <Text style={styles.profileText}>Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.companyButton} onPress={handleCompanyProfile}>
-              <Text style={styles.companyText}>Company</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
@@ -256,28 +243,6 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
-  },
-  profileButton: {
-    backgroundColor: theme.colors.secondary,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: 8,
-  },
-  profileText: {
-    color: theme.colors.text,
-    fontSize: theme.fontSize.sm,
-    fontFamily: theme.fontFamily.bodyMedium,
-  },
-  companyButton: {
-    backgroundColor: theme.colors.secondary,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: 8,
-  },
-  companyText: {
-    color: theme.colors.text,
-    fontSize: theme.fontSize.sm,
-    fontFamily: theme.fontFamily.bodyMedium,
   },
   logoutButton: {
     backgroundColor: theme.colors.accent,
