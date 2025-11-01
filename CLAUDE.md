@@ -59,6 +59,40 @@ npx supabase start   # Start local Supabase
 npx supabase stop    # Stop local Supabase
 npx supabase reset   # Reset local database
 npx supabase db push # Push schema changes
+
+# Supabase CLI inspection (for linked cloud projects)
+npx supabase inspect db bloat --linked          # Check table bloat
+npx supabase inspect db blocking --linked       # Show lock contention
+npx supabase inspect db calls --linked          # Most frequent queries
+npx supabase inspect db long-running-queries --linked  # Slow queries
+```
+
+### Database Debugging with Node.js
+```bash
+# Query database directly (great for debugging)
+node -e "
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+(async () => {
+  const { data, error } = await supabase.from('table_name').select('*').limit(5);
+  console.log('Data:', data);
+  console.log('Error:', error);
+})();"
+
+# Test RLS policies (compare anon vs service role access)
+node -e "
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
+const anonClient = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
+const serviceClient = createClient(process.env.EXPO_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+(async () => {
+  console.log('Testing RLS policies...');
+  const anonResult = await anonClient.from('table_name').select('count');
+  const serviceResult = await serviceClient.from('table_name').select('count');
+  console.log('Anon access:', anonResult.error ? 'BLOCKED' : 'ALLOWED');
+  console.log('Service access:', serviceResult.error ? 'BLOCKED' : 'ALLOWED');
+})();"
 ```
 
 ## 🏗️ Development Workflow with Claude Code

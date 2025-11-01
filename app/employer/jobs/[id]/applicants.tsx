@@ -26,6 +26,7 @@ export default function ApplicantsScreen() {
   const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -63,18 +64,50 @@ export default function ApplicantsScreen() {
   };
 
   const updateApplicationStatus = async (applicationId: string, status: 'accepted' | 'rejected') => {
+    setUpdatingStatus(applicationId);
+    console.log(`🔄 Attempting to update application ${applicationId} to status: ${status}`);
+
     try {
-      const { error } = await supabase
+      // Check current user authentication
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error('❌ Auth error:', authError);
+        throw new Error('Authentication failed');
+      }
+
+      console.log('👤 Current user:', user?.id, user?.email);
+
+      const { data, error, count } = await supabase
         .from('applications')
         .update({ status })
-        .eq('id', applicationId);
+        .eq('id', applicationId)
+        .select('*');
 
-      if (error) throw error;
+      console.log('📊 Update response:', { data, error, count });
 
-      console.log('Success', `Application ${status} successfully`);
+      if (error) {
+        console.error('❌ Database error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('⚠️ No rows were updated. This usually means RLS policy blocked the update.');
+        console.warn('Check that you own the job this application is for.');
+        throw new Error('Update blocked - you may not have permission to update this application');
+      }
+
+      console.log('✅ Application updated successfully:', data[0]);
+
+      // Remove the immediate local state update to avoid race conditions
+      // Just refresh from server
       await loadApplications();
     } catch (error: any) {
-      console.log('Error', error.message);
+      console.error('❌ Error updating application status:', error.message);
+      // You might want to show a toast/alert here in the future
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
@@ -121,12 +154,16 @@ export default function ApplicantsScreen() {
             onPress={() => updateApplicationStatus(item.id, 'accepted')}
             variant="secondary"
             size="sm"
+            loading={updatingStatus === item.id}
+            disabled={updatingStatus !== null}
           />
           <Button
             title="Reject"
             onPress={() => updateApplicationStatus(item.id, 'rejected')}
             variant="outline"
             size="sm"
+            loading={updatingStatus === item.id}
+            disabled={updatingStatus !== null}
           />
         </View>
       )}
