@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/config/theme';
 import { CalendarView } from '@/components/ui/CalendarView';
@@ -74,7 +74,7 @@ export default function CalendarScreen() {
   }, [user]);
 
   const handleEventPress = (event: CalendarEvent) => {
-    Alert.alert(
+    console.log(
       event.title,
       `${new Date(event.start_at).toLocaleString()}\n\n${event.notes || 'No additional details'}`,
       [{ text: 'OK' }]

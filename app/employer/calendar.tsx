@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/config/theme';
 import { CalendarView } from '@/components/ui/CalendarView';
@@ -78,27 +78,15 @@ export default function EmployerCalendarScreen() {
   }, [user]);
 
   const handleEventPress = (event: CalendarEvent) => {
-    Alert.alert(
-      event.title,
-      `${new Date(event.start_at).toLocaleString()}\n\nParticipant: ${event.participant_email || 'Not specified'}\n\n${event.notes || 'No additional details'}`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Edit Event',
-          onPress: () => {
-            Alert.alert('Coming Soon', 'Event editing will be available in a future update.');
-          }
-        }
-      ]
-    );
+    console.log(`Event Details: ${event.title}`);
+    console.log(`Time: ${new Date(event.start_at).toLocaleString()}`);
+    console.log(`Participant: ${event.participant_email || 'Not specified'}`);
+    console.log(`Notes: ${event.notes || 'No additional details'}`);
+    console.log('Coming Soon: Event editing will be available in a future update.');
   };
 
   const handleScheduleInterview = () => {
-    Alert.alert(
-      'Schedule Interview',
-      'Interview scheduling will be available when viewing job applicants. You can schedule interviews directly from the applicants list.',
-      [{ text: 'Got it' }]
-    );
+    console.log('Schedule Interview: Interview scheduling will be available when viewing job applicants. You can schedule interviews directly from the applicants list.');
   };
 
   return (
@@ -124,10 +112,7 @@ export default function EmployerCalendarScreen() {
               <Button
                 title="View Applicants"
                 onPress={() => {
-                  Alert.alert(
-                    'View Applicants',
-                    'Navigate to your job postings to view and manage applicants.'
-                  );
+                  console.log('View Applicants: Navigate to your job postings to view and manage applicants.');
                 }}
                 variant="outline"
                 style={styles.actionButton}
@@ -164,10 +149,7 @@ export default function EmployerCalendarScreen() {
               <TouchableOpacity
                 style={styles.getStartedButton}
                 onPress={() => {
-                  Alert.alert(
-                    'Get Started',
-                    'Navigate to the Jobs section to create your first job posting and start receiving applications.'
-                  );
+                  console.log('Get Started: Navigate to the Jobs section to create your first job posting and start receiving applications.');
                 }}
               >
                 <Text style={styles.getStartedText}>Create Job Posting</Text>

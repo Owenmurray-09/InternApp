@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, Alert, Switch, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Switch, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -113,11 +113,11 @@ export default function ProfileScreen() {
 
       if (error) throw error;
 
-      Alert.alert('Success', 'Profile updated successfully');
+      console.log('Success', 'Profile updated successfully');
       setEditing(false);
       await loadProfile();
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      console.log('Error', error.message);
     }
   };
 
@@ -145,14 +145,14 @@ export default function ProfileScreen() {
 
       setProfile(prev => prev ? { ...prev, daily_digest_enabled: enabled } : null);
 
-      Alert.alert(
+      console.log(
         'Settings Updated',
         enabled
           ? 'You will receive daily digest emails instead of immediate notifications'
           : 'You will receive immediate notifications for new job matches'
       );
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to update notification settings');
+      console.log('Error', 'Failed to update notification settings');
       console.error('Error updating daily digest setting:', error);
     }
   };

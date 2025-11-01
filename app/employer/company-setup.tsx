@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { theme } from '@/config/theme';
@@ -65,12 +65,12 @@ export default function CompanySetupScreen() {
 
   const handleSaveCompany = async () => {
     if (!formData.name.trim()) {
-      Alert.alert('Error', 'Please enter a company name');
+      console.log('Error', 'Please enter a company name');
       return;
     }
 
     if (!formData.description.trim()) {
-      Alert.alert('Error', 'Please enter a company description');
+      console.log('Error', 'Please enter a company description');
       return;
     }
 
@@ -134,7 +134,7 @@ export default function CompanySetupScreen() {
       setCompanySaved(true);
     } catch (error: any) {
       console.error('Company creation error:', error);
-      Alert.alert('Error', error.message);
+      console.log('Error', error.message);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Text, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -71,10 +71,10 @@ export default function ApplicantsScreen() {
 
       if (error) throw error;
 
-      Alert.alert('Success', `Application ${status} successfully`);
+      console.log('Success', `Application ${status} successfully`);
       await loadApplications();
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      console.log('Error', error.message);
     }
   };
 

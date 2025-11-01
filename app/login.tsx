@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthContext } from '@/lib/auth/AuthProvider';
@@ -19,7 +18,7 @@ export default function LoginScreen() {
 
   const handleSubmit = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      console.log('Error: Please fill in all fields');
       return;
     }
 
@@ -27,7 +26,7 @@ export default function LoginScreen() {
       clearError();
       if (isSignUp) {
         await signUp(email, password);
-        Alert.alert('Success', 'Account created! Please check your email to verify your account.');
+        console.log('Success: Account created! Please check your email to verify your account.');
       } else {
         await signIn(email, password);
       }

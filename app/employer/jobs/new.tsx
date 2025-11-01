@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, Alert, Switch, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Switch, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -96,7 +96,7 @@ export default function NewJobScreen() {
   const pickImages = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Camera roll permissions are required to select images');
+      console.log('Permission needed: Camera roll permissions are required to select images');
       return;
     }
 
@@ -150,7 +150,7 @@ export default function NewJobScreen() {
 
     if (!companyId) {
       console.log('❌ No company ID found');
-      Alert.alert('Error', 'Company not found. Please set up your company first.');
+      console.error('Error: Company not found. Please set up your company first.');
       return;
     }
 
@@ -182,7 +182,7 @@ export default function NewJobScreen() {
         console.log('✅ Job created successfully:', job);
       } catch (createError: any) {
         console.log('❌ Job creation failed:', createError);
-        Alert.alert('Error', createError.message || 'Failed to create job');
+        console.error('Error:', createError.message || 'Failed to create job');
         return;
       }
 
@@ -221,14 +221,13 @@ export default function NewJobScreen() {
       }
 
       console.log('🎉 Success! Job posted successfully, navigating to employer dashboard...');
-      Alert.alert('Success', successMessage, [
-        { text: 'OK', onPress: () => router.replace('/employer') }
-      ]);
+      console.log('Success:', successMessage);
+      router.replace('/employer');
 
     } catch (error: any) {
       console.log('❌ UNEXPECTED ERROR in handleSubmit:', error);
       console.log('Error message:', error.message);
-      Alert.alert('Error', error.message || 'An unexpected error occurred');
+      console.error('Error:', error.message || 'An unexpected error occurred');
     }
     console.log('=== JOB POSTING SUBMIT END ===');
   };

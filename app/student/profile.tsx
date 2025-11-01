@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { theme } from '@/config/theme';
@@ -61,9 +61,9 @@ export default function ProfileScreen() {
       setSaving(true);
       await updateProfile(editForm);
       setIsEditing(false);
-      Alert.alert('Success', 'Profile updated successfully!');
+      console.log('Success', 'Profile updated successfully!');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile');
+      console.log('Error', error.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -84,7 +84,7 @@ export default function ProfileScreen() {
   };
 
   const handleSignOut = async () => {
-    Alert.alert(
+    console.log(
       'Sign Out',
       'Are you sure you want to sign out?',
       [
@@ -97,7 +97,7 @@ export default function ProfileScreen() {
               await signOut();
               router.replace('/');
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to sign out');
+              console.log('Error', error.message || 'Failed to sign out');
             }
           },
         },
@@ -303,7 +303,7 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => {
-                  Alert.alert(
+                  console.log(
                     'Coming Soon',
                     'Settings will be available in a future update.'
                   );
@@ -315,7 +315,7 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => {
-                  Alert.alert(
+                  console.log(
                     'Help & Support',
                     'For support, please contact us at support@bridgeapp.com'
                   );

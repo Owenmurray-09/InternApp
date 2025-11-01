@@ -21,7 +21,7 @@ export default function StudentLoginScreen() {
 
   const handleSubmit = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      console.log('Error', 'Please fill in all fields');
       return;
     }
 
@@ -30,7 +30,7 @@ export default function StudentLoginScreen() {
       if (isSignUp) {
         // Sign up with student role in metadata
         await signUp(email, password, { role: 'student' });
-        Alert.alert('Success', 'Student account created! Please check your email to verify your account.');
+        console.log('Success', 'Student account created! Please check your email to verify your account.');
       } else {
         await signIn(email, password);
         // The auth context will handle redirecting to appropriate page

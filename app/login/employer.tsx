@@ -21,7 +21,7 @@ export default function EmployerLoginScreen() {
 
   const handleSubmit = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      console.log('Error', 'Please fill in all fields');
       return;
     }
 
@@ -30,7 +30,7 @@ export default function EmployerLoginScreen() {
       if (isSignUp) {
         // Sign up with employer role in metadata
         await signUp(email, password, { role: 'employer' });
-        Alert.alert('Success', 'Employer account created! Please check your email to verify your account.');
+        console.log('Success', 'Employer account created! Please check your email to verify your account.');
       } else {
         await signIn(email, password);
         // The auth context will handle redirecting to appropriate page
