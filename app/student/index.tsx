@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Text, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { theme } from '@/config/theme';
@@ -126,7 +126,13 @@ export default function StudentDashboard() {
             <Text style={styles.subtitle}>{jobs.length} opportunities available</Text>
           </View>
           <View style={styles.centerSection}>
-            <Text style={styles.bridgeTitle}>BRIDGE</Text>
+            <Image
+              source={require('@/assets/InternAppBridgeLogo.jpg')}
+              style={styles.bridgeLogo}
+              resizeMode="contain"
+              onError={() => console.log('Bridge logo failed to load')}
+            />
+            <Text style={[styles.bridgeTitle, { display: 'none' }]}>BRIDGE</Text>
           </View>
           <View style={styles.rightSection}>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -186,6 +192,10 @@ const styles = StyleSheet.create({
   rightSection: {
     flex: 1,
     alignItems: 'flex-end',
+  },
+  bridgeLogo: {
+    height: 80,
+    marginBottom: 0,
   },
   bridgeTitle: {
     fontSize: theme.fontSize.xxxl,

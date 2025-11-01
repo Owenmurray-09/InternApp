@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useAuthContext } from '@/lib/auth/AuthProvider';
@@ -42,7 +42,13 @@ export default function LandingScreen() {
   // Landing page for unauthenticated users
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Clean Job Marketplace</Text>
+      <Image
+        source={require('@/assets/InternAppBridgeLogo.jpg')}
+        style={styles.logo}
+        resizeMode="contain"
+        onError={() => console.log('Image failed to load')}
+      />
+      <Text style={[styles.title, { display: 'none' }]}>Bridge</Text>
       <Text style={styles.subtitle}>
         Connecting students with meaningful work opportunities
       </Text>
@@ -79,6 +85,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  logo: {
+    height: 120,
+    marginBottom: 8,
   },
   title: {
     fontSize: 32,
