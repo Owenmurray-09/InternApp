@@ -40,3 +40,5 @@ yarn-error.*
 /ios
 /android
 .vercel
+# Database Cleanup Scripts
+cleanup-database.js
