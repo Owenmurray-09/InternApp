@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Text, Image, Dimensions, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,11 +21,26 @@ export default function JobDetailScreen() {
   const [applicationPhone, setApplicationPhone] = useState('');
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const { job, loading } = useJob(id as string);
   const { apply, loading: applying } = useApply();
   const { hasApplied, loading: checkingApplication } = useCheckApplication(id as string);
   const { user } = useAuthContext();
+
+  const goToPrevious = () => {
+    if (!job?.images || currentImageIndex <= 0) return;
+    const newIndex = currentImageIndex - 1;
+    setCurrentImageIndex(newIndex);
+    scrollViewRef.current?.scrollTo({ x: newIndex * screenWidth, animated: true });
+  };
+
+  const goToNext = () => {
+    if (!job?.images || currentImageIndex >= job.images.length - 1) return;
+    const newIndex = currentImageIndex + 1;
+    setCurrentImageIndex(newIndex);
+    scrollViewRef.current?.scrollTo({ x: newIndex * screenWidth, animated: true });
+  };
 
   const renderImageCarousel = () => {
     if (!job?.images || job.images.length === 0) return null;
@@ -33,6 +48,7 @@ export default function JobDetailScreen() {
     return (
       <View style={styles.imageCarousel}>
         <ScrollView
+          ref={scrollViewRef}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
@@ -42,11 +58,26 @@ export default function JobDetailScreen() {
           }}
         >
           {job.images.map((image, index) => (
-            <Image
-              key={index}
-              source={{ uri: image }}
-              style={styles.carouselImage}
-            />
+            <View key={index} style={styles.imageContainer}>
+              <Image
+                source={{ uri: image }}
+                style={styles.carouselImage}
+              />
+              {job.images!.length > 1 && (
+                <>
+                  <TouchableOpacity
+                    style={styles.touchLeft}
+                    onPress={goToPrevious}
+                    activeOpacity={1}
+                  />
+                  <TouchableOpacity
+                    style={styles.touchRight}
+                    onPress={goToNext}
+                    activeOpacity={1}
+                  />
+                </>
+              )}
+            </View>
           ))}
         </ScrollView>
 
@@ -116,7 +147,7 @@ export default function JobDetailScreen() {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => router.push('/student')}
           >
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
@@ -283,9 +314,32 @@ const styles = StyleSheet.create({
   imageCarousel: {
     position: 'relative',
   },
+  imageContainer: {
+    position: 'relative',
+    width: screenWidth,
+    height: 250,
+  },
   carouselImage: {
     width: screenWidth,
     height: 250,
+  },
+  touchLeft: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: screenWidth / 2,
+    height: 250,
+    backgroundColor: 'transparent',
+    zIndex: 10,
+  },
+  touchRight: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: screenWidth / 2,
+    height: 250,
+    backgroundColor: 'transparent',
+    zIndex: 10,
   },
   imageIndicators: {
     position: 'absolute',
