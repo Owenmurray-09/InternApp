@@ -94,7 +94,7 @@ export default function ApplicationsScreen() {
             applications.map((application) => (
               <TouchableOpacity
                 key={application.id}
-                onPress={() => router.push(`/student/jobs/${application.job_id}`)}
+                onPress={() => router.push(`/jobs/${application.job_id}`)}
               >
                 <Card style={styles.applicationCard}>
                   <View style={styles.applicationHeader}>

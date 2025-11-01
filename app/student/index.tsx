@@ -57,7 +57,7 @@ export default function StudentDashboard() {
   };
 
   const handleJobPress = (jobId: string) => {
-    router.push(`/student/jobs/${jobId}`);
+    router.push(`/jobs/${jobId}`);
   };
 
   const renderJob = ({ item }: { item: Job }) => (
