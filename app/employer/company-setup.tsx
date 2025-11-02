@@ -11,7 +11,7 @@ import { useAuthContext } from '@/lib/auth/AuthProvider';
 
 export default function CompanySetupScreen() {
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, signOut } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [companySaved, setCompanySaved] = useState(false);
@@ -148,6 +148,15 @@ export default function CompanySetupScreen() {
     console.log('🏢 Employer dashboard navigation completed');
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.replace('/');
+    } catch (error: any) {
+      console.log('Error', error.message || 'Failed to sign out');
+    }
+  };
+
   if (loadingData) {
     return (
       <SafeAreaView style={styles.container}>
@@ -263,6 +272,16 @@ export default function CompanySetupScreen() {
           <Text style={styles.infoItem}>• Communicate with students</Text>
           <Text style={styles.infoItem}>• Build your employer brand</Text>
         </Card>
+
+        <Card style={styles.actionsCard}>
+          <Text style={styles.sectionTitle}>Account Actions</Text>
+          <Button
+            title="Sign Out"
+            onPress={handleSignOut}
+            variant="outline"
+            style={styles.signOutButton}
+          />
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );
@@ -370,5 +389,19 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     marginBottom: theme.spacing.xs,
     lineHeight: 20,
+  },
+  actionsCard: {
+    margin: theme.spacing.lg,
+    marginTop: 0,
+    padding: theme.spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fontFamily.titleMedium,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.md,
+  },
+  signOutButton: {
+    borderColor: theme.colors.error,
   },
 });

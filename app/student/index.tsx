@@ -7,6 +7,7 @@ import { JobCard } from '@/components/ui/JobCard';
 import { JobFilters } from '@/components/ui/JobFilters';
 import { useJobs } from '@/lib/hooks/useJobs';
 import { useAuthContext } from '@/lib/auth/AuthProvider';
+import { useProfile } from '@/lib/hooks/useProfile';
 
 interface Job {
   id: string;
@@ -32,6 +33,7 @@ interface Filters {
 
 export default function StudentDashboard() {
   const { user, signOut } = useAuthContext();
+  const { profile } = useProfile();
   const [filters, setFilters] = useState<Filters>({
     keyword: '',
     paidOnly: false,
@@ -141,7 +143,9 @@ export default function StudentDashboard() {
           </View>
         </View>
         {user && (
-          <Text style={styles.welcomeText}>Welcome back, {user.email}!</Text>
+          <Text style={styles.welcomeText}>
+            Welcome back, {profile?.name || user.email}!
+          </Text>
         )}
       </View>
 
