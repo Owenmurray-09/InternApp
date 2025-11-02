@@ -13,9 +13,7 @@ interface Company {
   id: string;
   name: string;
   description: string;
-  website: string | null;
   location: string | null;
-  industry: string | null;
 }
 
 export default function EmployerProfileScreen() {
@@ -28,9 +26,7 @@ export default function EmployerProfileScreen() {
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
-    website: '',
     location: '',
-    industry: '',
   });
 
   useEffect(() => {
@@ -57,9 +53,7 @@ export default function EmployerProfileScreen() {
         setEditForm({
           name: data.name || '',
           description: data.description || '',
-          website: data.website || '',
           location: data.location || '',
-          industry: data.industry || '',
         });
       }
     } catch (error) {
@@ -78,9 +72,7 @@ export default function EmployerProfileScreen() {
       const updateData = {
         name: editForm.name.trim(),
         description: editForm.description.trim(),
-        website: editForm.website.trim() || null,
         location: editForm.location.trim() || null,
-        industry: editForm.industry.trim() || null,
       };
 
       if (company) {
@@ -118,9 +110,7 @@ export default function EmployerProfileScreen() {
       setEditForm({
         name: company.name || '',
         description: company.description || '',
-        website: company.website || '',
         location: company.location || '',
-        industry: company.industry || '',
       });
     }
     setIsEditing(false);
@@ -186,13 +176,6 @@ export default function EmployerProfileScreen() {
                   multiline
                 />
 
-                <Input
-                  label="Website"
-                  value={editForm.website}
-                  onChangeText={(text) => setEditForm({ ...editForm, website: text })}
-                  placeholder="https://www.company.com"
-                  keyboardType="url"
-                />
 
                 <Input
                   label="Location"
@@ -201,12 +184,6 @@ export default function EmployerProfileScreen() {
                   placeholder="City, State/Province"
                 />
 
-                <Input
-                  label="Industry"
-                  value={editForm.industry}
-                  onChangeText={(text) => setEditForm({ ...editForm, industry: text })}
-                  placeholder="e.g., Technology, Healthcare, Retail"
-                />
 
                 <View style={styles.editActions}>
                   <Button
@@ -242,12 +219,6 @@ export default function EmployerProfileScreen() {
                   </Text>
                 </View>
 
-                {company?.website && (
-                  <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Website</Text>
-                    <Text style={styles.detailValue}>{company.website}</Text>
-                  </View>
-                )}
 
                 <View style={styles.detailItem}>
                   <Text style={styles.detailLabel}>Location</Text>
@@ -256,12 +227,6 @@ export default function EmployerProfileScreen() {
                   </Text>
                 </View>
 
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>Industry</Text>
-                  <Text style={styles.detailValue}>
-                    {company?.industry || 'Industry not specified'}
-                  </Text>
-                </View>
 
                 <View style={styles.detailItem}>
                   <Text style={styles.detailLabel}>Account Created</Text>
@@ -309,7 +274,7 @@ export default function EmployerProfileScreen() {
                   );
                 }}
               >
-                <Text style={styles.actionButtonText}>⚙️ Settings</Text>
+                <Text style={styles.actionButtonText}>⚙️ Settings (disabled)</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -321,7 +286,7 @@ export default function EmployerProfileScreen() {
                   );
                 }}
               >
-                <Text style={styles.actionButtonText}>❓ Help & Support</Text>
+                <Text style={styles.actionButtonText}>❓ Help & Support (disabled)</Text>
               </TouchableOpacity>
             </View>
 

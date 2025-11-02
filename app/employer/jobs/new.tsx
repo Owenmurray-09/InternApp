@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Text, Switch, TouchableOpacity, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { theme } from '@/config/theme';
 import { Input } from '@/components/ui/Input';
@@ -37,9 +37,33 @@ export default function NewJobScreen() {
   const { createJob, loading: createLoading } = useCreateJob();
   const { uploadImages, loading: uploadLoading, progress } = useUploadJobImages();
 
+  // Centralized function to reset all form state
+  const resetFormState = () => {
+    console.log('🔄 Resetting job form state to blank');
+    setTitle('');
+    setDescription('');
+    setLocation('');
+    setIsPaid(false);
+    setStipendAmount('');
+    setSelectedTags([]);
+    setSelectedImages([]);
+    setErrors({});
+  };
+
+  // Reset form state when component mounts
   useEffect(() => {
+    console.log('🚀 NewJobScreen component mounted - resetting form state');
+    resetFormState();
     loadCompany();
   }, []);
+
+  // Additional reset when screen comes into focus (handles navigation edge cases)
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('👁️ NewJobScreen came into focus - ensuring clean state');
+      resetFormState();
+    }, [])
+  );
 
   const loadCompany = async () => {
     try {
@@ -231,6 +255,9 @@ export default function NewJobScreen() {
 
       console.log('🎉 Success! Job posted successfully, navigating to employer dashboard...');
       console.log('Success:', successMessage);
+
+      // Reset form state before navigation to ensure clean state for next time
+      resetFormState();
       router.replace('/employer');
 
     } catch (error: any) {

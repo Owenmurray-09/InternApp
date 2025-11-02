@@ -36,7 +36,9 @@ export const JobCard: React.FC<JobCardProps> = ({
     <TouchableOpacity onPress={() => onPress(id)} style={styles.container}>
       <Card style={styles.card}>
         {image && (
-          <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: image }} style={styles.image} resizeMode="contain" />
+          </View>
         )}
 
         <View style={styles.content}>
@@ -76,12 +78,21 @@ const styles = StyleSheet.create({
     padding: 0,
     overflow: 'hidden',
   },
-  image: {
+  imageContainer: {
+    height: 120,
     width: '100%',
-    height: 160,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginLeft: 20,
+  },
+  image: {
+    height: 120,
+    aspectRatio: 1,
   },
   content: {
-    padding: theme.spacing.md,
+    paddingTop: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.md,
   },
   title: {
     fontSize: theme.fontSize.lg,

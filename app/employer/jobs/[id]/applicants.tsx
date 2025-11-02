@@ -169,13 +169,33 @@ export default function ApplicantsScreen() {
       )}
 
       {item.status !== 'submitted' && (
-        <View style={styles.statusBadge}>
-          <Text style={[
-            styles.statusText,
-            { color: item.status === 'accepted' ? theme.colors.success : theme.colors.error }
-          ]}>
-            {item.status.toUpperCase()}
-          </Text>
+        <View style={styles.statusSection}>
+          <View style={styles.statusDisplay}>
+            <Text style={styles.statusIcon}>
+              {item.status === 'accepted' ? '✅' : '❌'}
+            </Text>
+            <Text style={[
+              styles.statusText,
+              { color: item.status === 'accepted' ? theme.colors.success : theme.colors.error }
+            ]}>
+              {item.status.toUpperCase()}
+            </Text>
+          </View>
+          <Button
+            title={item.status === 'accepted' ? 'Change to Rejected' : 'Change to Accepted'}
+            onPress={() => updateApplicationStatus(item.id, item.status === 'accepted' ? 'rejected' : 'accepted')}
+            variant="outline"
+            size="sm"
+            loading={updatingStatus === item.id}
+            disabled={updatingStatus !== null}
+            style={[
+              styles.changeButton,
+              { borderColor: item.status === 'accepted' ? theme.colors.error : theme.colors.success }
+            ]}
+            textStyle={{
+              color: item.status === 'accepted' ? theme.colors.error : theme.colors.success
+            }}
+          />
         </View>
       )}
     </Card>
@@ -345,16 +365,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.spacing.sm,
   },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.surface,
+  statusSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: theme.spacing.md,
+  },
+  statusDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  statusIcon: {
+    fontSize: theme.fontSize.lg,
+    marginRight: theme.spacing.sm,
   },
   statusText: {
     fontSize: theme.fontSize.sm,
     fontFamily: theme.fontFamily.bodyMedium,
+  },
+  changeButton: {
+    marginLeft: theme.spacing.md,
   },
   empty: {
     flex: 1,

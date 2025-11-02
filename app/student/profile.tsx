@@ -309,7 +309,7 @@ export default function ProfileScreen() {
                   );
                 }}
               >
-                <Text style={styles.actionButtonText}>⚙️ Settings</Text>
+                <Text style={styles.actionButtonText}>⚙️ Settings (disabled)</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -321,7 +321,7 @@ export default function ProfileScreen() {
                   );
                 }}
               >
-                <Text style={styles.actionButtonText}>❓ Help & Support</Text>
+                <Text style={styles.actionButtonText}>❓ Help & Support (disabled)</Text>
               </TouchableOpacity>
             </View>
 

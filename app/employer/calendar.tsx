@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { theme } from '@/config/theme';
 import { CalendarView } from '@/components/ui/CalendarView';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +22,7 @@ interface CalendarEvent {
 
 export default function EmployerCalendarScreen() {
   const { user } = useAuthContext();
+  const router = useRouter();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -105,15 +107,13 @@ export default function EmployerCalendarScreen() {
             <Text style={styles.actionsTitle}>Quick Actions</Text>
             <View style={styles.actionButtons}>
               <Button
-                title="Schedule Interview"
+                title="Schedule Interview (disabled)"
                 onPress={handleScheduleInterview}
                 style={styles.actionButton}
               />
               <Button
                 title="View Applicants"
-                onPress={() => {
-                  console.log('View Applicants: Navigate to your job postings to view and manage applicants.');
-                }}
+                onPress={() => router.push('/employer/applications')}
                 variant="outline"
                 style={styles.actionButton}
               />
@@ -148,9 +148,7 @@ export default function EmployerCalendarScreen() {
               </Text>
               <TouchableOpacity
                 style={styles.getStartedButton}
-                onPress={() => {
-                  console.log('Get Started: Navigate to the Jobs section to create your first job posting and start receiving applications.');
-                }}
+                onPress={() => router.push('/employer/jobs/new')}
               >
                 <Text style={styles.getStartedText}>Create Job Posting</Text>
               </TouchableOpacity>

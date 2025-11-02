@@ -283,7 +283,7 @@ export default function JobDetailScreen() {
               />
 
               <Button
-                title="💬 WhatsApp"
+                title="💬 WhatsApp (disabled)"
                 onPress={() => {
                   const phone = job?.companies?.phone || '';
                   if (!phone) {
