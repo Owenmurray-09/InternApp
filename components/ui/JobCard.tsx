@@ -10,7 +10,7 @@ interface JobCardProps {
   companyName: string;
   location?: string;
   tags: string[];
-  isPaid: boolean;
+  isPaid?: boolean;
   stipendAmount?: number | null;
   image?: string;
   onPress: (id: string) => void;

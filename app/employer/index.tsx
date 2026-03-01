@@ -14,14 +14,12 @@ interface Job {
   title: string;
   description: string;
   tags: string[];
-  is_paid: boolean;
-  stipend_amount: number | null;
   location: string | null;
-  images: string[];
-  status: 'open' | 'closed';
   created_at: string;
-  companies: {
+  profiles: {
+    id: string;
     name: string;
+    role: string;
   };
 }
 
@@ -48,11 +46,12 @@ export default function EmployerDashboard() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // First check if user has a company
+      // First check if user has an employer profile
       const { data: company, error: companyError } = await supabase
-        .from('companies')
+        .from('profiles')
         .select('id')
-        .eq('owner_user_id', user.id)
+        .eq('id', user.id)
+        .eq('role', 'employer')
         .single();
 
       console.log('=== COMPANY QUERY DEBUG ===');
@@ -98,17 +97,15 @@ export default function EmployerDashboard() {
           title,
           description,
           tags,
-          is_paid,
-          stipend_amount,
           location,
-          images,
-          status,
           created_at,
-          companies!inner (
-            name
+          profiles!company_id (
+            id,
+            name,
+            role
           )
         `)
-        .eq('companies.owner_user_id', user.id)
+        .eq('company_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -148,12 +145,9 @@ export default function EmployerDashboard() {
     <JobCard
       id={item.id}
       title={item.title}
-      companyName={item.companies.name}
+      companyName={item.profiles.name}
       location={item.location}
       tags={item.tags}
-      isPaid={item.is_paid}
-      stipendAmount={item.stipend_amount}
-      image={item.images?.[0]}
       onPress={handleJobPress}
     />
   );

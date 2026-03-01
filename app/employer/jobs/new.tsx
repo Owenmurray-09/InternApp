@@ -23,8 +23,6 @@ export default function NewJobScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
-  const [isPaid, setIsPaid] = useState(false);
-  const [stipendAmount, setStipendAmount] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -43,8 +41,6 @@ export default function NewJobScreen() {
     setTitle('');
     setDescription('');
     setLocation('');
-    setIsPaid(false);
-    setStipendAmount('');
     setSelectedTags([]);
     setSelectedImages([]);
     setErrors({});
@@ -71,37 +67,31 @@ export default function NewJobScreen() {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('companies')
+        .from('profiles')
         .select('id')
-        .eq('owner_user_id', user.id)
+        .eq('id', user.id)
+        .eq('role', 'employer')
         .single();
 
       if (error) {
-        console.log('Company query error in job creation:', error);
+        console.log('Profile query error in job creation:', error);
 
         if (error.code === 'PGRST116') {
-          // No company found, redirect to setup
-          console.log('No company found, redirecting to company setup');
+          // No employer profile found, redirect to setup
+          console.log('No employer profile found, redirecting to company setup');
           router.replace('/employer/company-setup');
           return;
         }
 
-        // Handle other database permission errors like we do elsewhere
-        if (error.code === 'PGRST301' || error.message?.includes('406')) {
-          console.log('Database permissions issue, using placeholder company ID');
-          setCompanyId('placeholder-company-id');
-          return;
-        }
-
         // For other errors, redirect to setup
-        console.log('Other company error, redirecting to setup');
+        console.log('Other profile error, redirecting to setup');
         router.replace('/employer/company-setup');
         return;
       }
 
       setCompanyId(data.id);
     } catch (error) {
-      console.error('Error loading company:', error);
+      console.error('Error loading employer profile:', error);
     } finally {
       setLoadingCompany(false);
     }
@@ -162,9 +152,6 @@ export default function NewJobScreen() {
       newErrors.tags = 'Select at least one skill tag';
     }
 
-    if (isPaid && stipendAmount && parseFloat(stipendAmount) < 0) {
-      newErrors.stipend_amount = 'Amount must be positive';
-    }
 
     setErrors(newErrors);
 
@@ -202,8 +189,6 @@ export default function NewJobScreen() {
         description: description.trim(),
         location: location.trim() || null,
         tags: selectedTags,
-        is_paid: isPaid,
-        stipend_amount: isPaid && stipendAmount ? parseFloat(stipendAmount) : null,
       };
 
       console.log('📝 Job data to submit:', jobData);
@@ -351,29 +336,6 @@ export default function NewJobScreen() {
             />
           </View>
 
-          <View style={styles.paymentSection}>
-            <Text style={styles.sectionTitle}>Payment</Text>
-            <View style={styles.paidToggle}>
-              <Text style={styles.toggleLabel}>This is a paid position</Text>
-              <Switch value={isPaid} onValueChange={setIsPaid} />
-            </View>
-
-            {isPaid && (
-              <View>
-                <Input
-                  label="Stipend Amount ($)"
-                  value={stipendAmount}
-                  onChangeText={(text) => {
-                    setStipendAmount(text);
-                    if (errors.stipend_amount) setErrors(prev => ({ ...prev, stipend_amount: '' }));
-                  }}
-                  keyboardType="numeric"
-                  placeholder="e.g., 2500 for total, 18 for hourly"
-                />
-                {errors.stipend_amount && <Text style={styles.errorText}>{errors.stipend_amount}</Text>}
-              </View>
-            )}
-          </View>
 
           <View style={styles.tagsSection}>
             <Text style={styles.sectionTitle}>Required Skills & Tags *</Text>

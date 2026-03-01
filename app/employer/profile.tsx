@@ -9,24 +9,23 @@ import { Input } from '@/components/ui/Input';
 import { useAuthContext } from '@/lib/auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
 
-interface Company {
+interface EmployerProfile {
   id: string;
   name: string;
-  description: string;
-  location: string | null;
+  bio: string;
+  role: string;
 }
 
 export default function EmployerProfileScreen() {
   const { user, signOut } = useAuthContext();
   const router = useRouter();
-  const [company, setCompany] = useState<Company | null>(null);
+  const [company, setCompany] = useState<EmployerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
-    location: '',
   });
 
   useEffect(() => {
@@ -40,9 +39,10 @@ export default function EmployerProfileScreen() {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('companies')
+        .from('profiles')
         .select('*')
-        .eq('owner_user_id', user.id)
+        .eq('id', user.id)
+        .eq('role', 'employer')
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -52,8 +52,7 @@ export default function EmployerProfileScreen() {
       if (data) {
         setEditForm({
           name: data.name || '',
-          description: data.description || '',
-          location: data.location || '',
+          description: data.bio || '',
         });
       }
     } catch (error) {
@@ -71,29 +70,16 @@ export default function EmployerProfileScreen() {
 
       const updateData = {
         name: editForm.name.trim(),
-        description: editForm.description.trim(),
-        location: editForm.location.trim() || null,
+        bio: editForm.description.trim(),
       };
 
-      if (company) {
-        // Update existing company
-        const { error } = await supabase
-          .from('companies')
-          .update(updateData)
-          .eq('id', company.id);
+      // Always update existing profile (employer profiles are created during signup)
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id);
 
-        if (error) throw error;
-      } else {
-        // Create new company
-        const { error } = await supabase
-          .from('companies')
-          .insert({
-            ...updateData,
-            owner_user_id: user.id,
-          });
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       await loadCompany();
       setIsEditing(false);
@@ -109,8 +95,7 @@ export default function EmployerProfileScreen() {
     if (company) {
       setEditForm({
         name: company.name || '',
-        description: company.description || '',
-        location: company.location || '',
+        description: company.bio || '',
       });
     }
     setIsEditing(false);
@@ -177,12 +162,6 @@ export default function EmployerProfileScreen() {
                 />
 
 
-                <Input
-                  label="Location"
-                  value={editForm.location}
-                  onChangeText={(text) => setEditForm({ ...editForm, location: text })}
-                  placeholder="City, State/Province"
-                />
 
 
                 <View style={styles.editActions}>
@@ -220,12 +199,6 @@ export default function EmployerProfileScreen() {
                 </View>
 
 
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>Location</Text>
-                  <Text style={styles.detailValue}>
-                    {company?.location || 'Location not specified'}
-                  </Text>
-                </View>
 
 
                 <View style={styles.detailItem}>

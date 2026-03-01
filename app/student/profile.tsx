@@ -27,7 +27,6 @@ export default function ProfileScreen() {
   const [editForm, setEditForm] = useState({
     name: '',
     bio: '',
-    location: '',
     phone: '',
     experience: '',
     interests: [] as string[],
@@ -39,7 +38,6 @@ export default function ProfileScreen() {
       setEditForm({
         name: profile.name || '',
         bio: profile.bio || '',
-        location: profile.location || '',
         phone: profile.phone || '',
         experience: profile.experience || '',
         interests: profile.interests || [],
@@ -74,7 +72,6 @@ export default function ProfileScreen() {
       setEditForm({
         name: profile.name || '',
         bio: profile.bio || '',
-        location: profile.location || '',
         phone: profile.phone || '',
         experience: profile.experience || '',
         interests: profile.interests || [],
@@ -84,25 +81,12 @@ export default function ProfileScreen() {
   };
 
   const handleSignOut = async () => {
-    console.log(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut();
-              router.replace('/');
-            } catch (error: any) {
-              console.log('Error', error.message || 'Failed to sign out');
-            }
-          },
-        },
-      ]
-    );
+    try {
+      await signOut();
+      router.replace('/');
+    } catch (error: any) {
+      console.log('Error', error.message || 'Failed to sign out');
+    }
   };
 
   if (!user) {
@@ -174,12 +158,6 @@ export default function ProfileScreen() {
                   multiline
                 />
 
-                <Input
-                  label="Location"
-                  value={editForm.location}
-                  onChangeText={(text) => setEditForm({ ...editForm, location: text })}
-                  placeholder="Your city or region"
-                />
 
                 <Input
                   label="Phone (Optional)"
@@ -243,12 +221,6 @@ export default function ProfileScreen() {
                   </View>
                 )}
 
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>Location</Text>
-                  <Text style={styles.detailValue}>
-                    {profile?.location || 'Location not specified'}
-                  </Text>
-                </View>
 
                 <View style={styles.detailItem}>
                   <Text style={styles.detailLabel}>Phone</Text>

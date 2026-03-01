@@ -7,8 +7,10 @@ type Application = Database['public']['Tables']['applications']['Row'] & {
     id: string;
     title: string;
     company_id: string;
-    companies: {
+    profiles: {
+      id: string;
       name: string;
+      role: string;
     };
   };
 };
@@ -61,16 +63,18 @@ export function useApplications(
         .from('applications')
         .select(`
           *,
-          jobs!inner (
+          jobs!job_id (
             id,
             title,
             company_id,
-            companies!inner (
-              name
+            profiles!company_id (
+              id,
+              name,
+              role
             )
           )
         `)
-        .eq('student_user_id', user.id)
+        .eq('student_id', user.id)
         .order('created_at', { ascending: false });
 
       if (stableFilters.jobId) {
@@ -128,7 +132,7 @@ export function useCheckApplication(jobId: string): UseCheckApplicationReturn {
           .from('applications')
           .select('id')
           .eq('job_id', jobId)
-          .eq('student_user_id', user.id)
+          .eq('student_id', user.id)
           .limit(1);
 
         if (error) throw error;
@@ -181,7 +185,7 @@ export function useApplicationStatus(jobId: string): UseApplicationStatusReturn 
           .from('applications')
           .select('status')
           .eq('job_id', jobId)
-          .eq('student_user_id', user.id)
+          .eq('student_id', user.id)
           .limit(1);
 
         if (error) throw error;
@@ -250,7 +254,7 @@ export function useApply(): UseApplyReturn {
         .from('applications')
         .select('id')
         .eq('job_id', jobId)
-        .eq('student_user_id', user.id)
+        .eq('student_id', user.id)
         .limit(1);
 
       if (existingApplication && existingApplication.length > 0) {
@@ -260,7 +264,7 @@ export function useApply(): UseApplyReturn {
       // Submit application with contact fields
       const applicationData = {
         job_id: jobId,
-        student_user_id: user.id,
+        student_id: user.id,
         note: note || null,
         status: 'submitted',
         contact_email: contactEmail || null,

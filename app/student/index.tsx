@@ -14,12 +14,11 @@ interface Job {
   title: string;
   description: string;
   tags: string[];
-  is_paid: boolean;
-  stipend_amount: number | null;
+  // Payment fields removed - not in current schema
   location: string | null;
   images: string[];
   created_at: string;
-  companies: {
+  profiles: {
     name: string;
   };
 }
@@ -66,11 +65,10 @@ export default function StudentDashboard() {
     <JobCard
       id={item.id}
       title={item.title}
-      companyName={item.companies.name}
+      companyName={item.profiles.name}
       location={item.location}
       tags={item.tags}
-      isPaid={item.is_paid}
-      stipendAmount={item.stipend_amount}
+      // Payment props removed - not in current schema
       image={item.images?.[0]}
       onPress={handleJobPress}
     />

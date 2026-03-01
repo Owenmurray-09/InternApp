@@ -1,0 +1,5 @@
+-- Disable RLS on all tables for demo app
+ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.jobs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.applications DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages DISABLE ROW LEVEL SECURITY;

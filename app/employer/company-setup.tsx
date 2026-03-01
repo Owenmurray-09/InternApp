@@ -19,8 +19,6 @@ export default function CompanySetupScreen() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    location: '',
-    email: '',
     phone: '',
   });
 
@@ -36,9 +34,10 @@ export default function CompanySetupScreen() {
       if (!authUser) return;
 
       const { data: company, error } = await supabase
-        .from('companies')
+        .from('profiles')
         .select('*')
-        .eq('owner_user_id', authUser.id)
+        .eq('id', authUser.id)
+        .eq('role', 'employer')
         .single();
 
       if (error) {
@@ -49,9 +48,7 @@ export default function CompanySetupScreen() {
         setExistingCompanyId(company.id);
         setFormData({
           name: company.name || '',
-          description: company.description || '',
-          location: company.location || '',
-          email: company.email || '',
+          description: company.bio || '',
           phone: company.phone || '',
         });
         // Don't set companySaved to true here - only after actual save/update
@@ -105,28 +102,16 @@ export default function CompanySetupScreen() {
 
       const companyData = {
         name: formData.name.trim(),
-        description: formData.description.trim(),
-        location: formData.location.trim() || null,
-        email: formData.email.trim() || null,
+        bio: formData.description.trim(),
         phone: formData.phone.trim() || null,
-        owner_user_id: user.id,
+        role: 'employer',
       };
 
-      let error;
-      if (existingCompanyId) {
-        // Update existing company
-        const result = await supabase
-          .from('companies')
-          .update(companyData)
-          .eq('id', existingCompanyId);
-        error = result.error;
-      } else {
-        // Create new company
-        const result = await supabase
-          .from('companies')
-          .insert(companyData);
-        error = result.error;
-      }
+      // Always update the existing profile (employer profiles are created during signup)
+      const { error } = await supabase
+        .from('profiles')
+        .update(companyData)
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -204,22 +189,6 @@ export default function CompanySetupScreen() {
             onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
             placeholder="Describe your company and what you do..."
             multiline
-          />
-
-          <Input
-            label="Location"
-            value={formData.location}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
-            placeholder="e.g. San Francisco, CA"
-          />
-
-          <Input
-            label="Contact Email"
-            value={formData.email}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
-            placeholder="contact@company.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
           />
 
           <Input

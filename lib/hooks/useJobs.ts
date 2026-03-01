@@ -3,11 +3,11 @@ import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/db';
 
 type Job = Database['public']['Tables']['jobs']['Row'] & {
-  companies: {
+  profiles: {
+    id: string;
     name: string;
-    description?: string;
-    location?: string;
-    owner_user_id?: string;
+    bio?: string;
+    role: string;
   };
 };
 
@@ -92,14 +92,13 @@ export function useJobs(filters: JobFilters = {}, signal?: AbortSignal): UseJobs
         .from('jobs')
         .select(`
           *,
-          companies!inner (
+          profiles!company_id (
+            id,
             name,
-            description,
-            location,
-            owner_user_id
+            bio,
+            role
           )
         `)
-        .eq('status', 'open')
         .order('created_at', { ascending: false });
 
       if (stableFilters.keyword) {
@@ -108,9 +107,7 @@ export function useJobs(filters: JobFilters = {}, signal?: AbortSignal): UseJobs
         );
       }
 
-      if (stableFilters.paidOnly) {
-        query = query.eq('is_paid', true);
-      }
+      // Skip paid filter since we don't have is_paid column in current schema
 
       if (stableFilters.location) {
         query = query.ilike('location', `%${stableFilters.location}%`);
@@ -161,11 +158,11 @@ export function useJob(id: string, signal?: AbortSignal): UseJobReturn {
         .from('jobs')
         .select(`
           *,
-          companies!inner (
+          profiles!company_id (
+            id,
             name,
-            description,
-            location,
-            owner_user_id
+            bio,
+            role
           )
         `)
         .eq('id', id)
@@ -208,11 +205,11 @@ export function useCreateJob(): UseCreateJobReturn {
         .insert(data)
         .select(`
           *,
-          companies!inner (
+          profiles!company_id (
+            id,
             name,
-            description,
-            location,
-            owner_user_id
+            bio,
+            role
           )
         `)
         .single();
@@ -283,11 +280,11 @@ export function useUpdateJob(): UseUpdateJobReturn {
         .eq('id', id)
         .select(`
           *,
-          companies!inner (
+          profiles!company_id (
+            id,
             name,
-            description,
-            location,
-            owner_user_id
+            bio,
+            role
           )
         `)
         .single();
